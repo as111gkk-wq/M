@@ -1,0 +1,255 @@
+/* إعدادات عامة */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    color: #333;
+}
+
+/* الجزء العلوي - الصور المتحركة */
+.header {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.welcome-text {
+    font-size: 2.5rem;
+    color: white;
+    margin-bottom: 30px;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.slider-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    overflow: hidden;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 15px;
+}
+
+.slider {
+    display: flex;
+    width: 200%;
+    animation: slide 8s infinite ease-in-out;
+}
+
+.slide-group {
+    display: flex;
+    width: 50%;
+    gap: 15px;
+}
+
+.slide-item {
+    flex: 1;
+    height: 180px;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.slide-item:hover {
+    transform: translateY(-5px);
+}
+
+.slide-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.slide-item:hover img {
+    transform: scale(1.1);
+}
+
+@keyframes slide {
+    0%, 40% { transform: translateX(0); }
+    50%, 90% { transform: translateX(-50%); }
+    100% { transform: translateX(0); }
+}
+
+/* مربع كلمة السر */
+.login-container {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    padding: 40px 30px;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 450px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.login-title {
+    color: #2d3436;
+    margin-bottom: 25px;
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.password-input {
+    width: 100%;
+    padding: 15px 20px;
+    margin-bottom: 25px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+}
+
+.password-input:focus {
+    border-color: #6a11cb;
+    box-shadow: 0 0 15px rgba(106, 17, 203, 0.3);
+    outline: none;
+    transform: scale(1.02);
+}
+
+.login-btn {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(106, 17, 203, 0.4);
+    margin-bottom: 15px;
+}
+
+.login-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(106, 17, 203, 0.6);
+}
+
+.login-btn:active {
+    transform: translateY(0);
+}
+
+.hint {
+    color: #666;
+    font-size: 0.9rem;
+    margin-top: 10px;
+}
+
+/* الجزء السفلي */
+.footer {
+    margin-top: 40px;
+    color: white;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px 30px;
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    width: 100%;
+    max-width: 300px;
+}
+
+.contact-text {
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.contact-number {
+    font-size: 1.4rem;
+    direction: ltr;
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+/* تأثيرات الاهتزاز للخطأ */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+}
+
+.shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+/* تأثيرات responsive */
+@media (max-width: 768px) {
+    .welcome-text {
+        font-size: 2rem;
+    }
+    
+    .slide-item {
+        height: 140px;
+    }
+    
+    .login-container {
+        padding: 30px 20px;
+    }
+    
+    .login-title {
+        font-size: 1.5rem;
+    }
+    
+    .slider-container {
+        max-width: 95%;
+    }
+}
+
+@media (max-width: 480px) {
+    .welcome-text {
+        font-size: 1.6rem;
+    }
+    
+    .slide-item {
+        height: 100px;
+    }
+    
+    .slider-container {
+        padding: 10px;
+    }
+    
+    .slide-group {
+        gap: 8px;
+    }
+    
+    .footer {
+        padding: 15px 20px;
+    }
+    
+    .contact-text {
+        font-size: 1.1rem;
+    }
+    
+    .contact-number {
+        font-size: 1.2rem;
+        padding: 8px 15px;
+    }
+}
