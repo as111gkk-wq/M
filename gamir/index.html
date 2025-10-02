@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة التوقع - آخر 6 ضربات</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- شاشة إدخال آخر 6 ضربات -->
+        <div id="inputScreen" class="screen active">
+            <h1>أدخل آخر 6 ضربات في اللعبة</h1>
+            <p class="subtitle">(يمكن تكرار العناصر أكثر من مرة)</p>
+            
+            <div class="choices-grid">
+                <div class="choice-item" data-value="🍅">🍅 طماطم</div>
+                <div class="choice-item" data-value="🫑">🫑 فلفل</div>
+                <div class="choice-item" data-value="🥕">🥕 جزر</div>
+                <div class="choice-item" data-value="🌽">🌽 ذرة</div>
+                <div class="choice-item" data-value="🐮">🐮 بقرة</div>
+                <div class="choice-item" data-value="🐟">🐟 سمكة</div>
+                <div class="choice-item" data-value="🍤">🍤 جمبري</div>
+                <div class="choice-item" data-value="🐤">🐤 كتكوت</div>
+            </div>
+            
+            <div class="selected-items">
+                <h3>الضربات المختارة (<span id="selectedCount">0</span>/6):</h3>
+                <div id="selectedList" class="selected-list"></div>
+                <button id="confirmBtn" class="confirm-btn" disabled>تأكيد الدخول</button>
+            </div>
+        </div>
+
+        <!-- شاشة التخمين -->
+        <div id="guessScreen" class="screen">
+            <!-- زر الرجوع في الأعلى يسار -->
+            <button id="backBtn" class="back-btn-top">↶ الرجوع للبداية</button>
+            
+            <h1>توقع الضربة القادمة</h1>
+            
+            <div class="game-info">
+                <div class="current-round">
+                    <h3>الجولة الحالية:</h3>
+                    <div id="currentRoundHits" class="round-hits"></div>
+                </div>
+            </div>
+
+            <div class="predictions">
+                <h3>التوقعات:</h3>
+                <div class="prediction-category">
+                    <h4>توقع 100%</h4>
+                    <div id="prediction100" class="prediction-items"></div>
+                </div>
+                <div class="prediction-category">
+                    <h4>توقع 50%</h4>
+                    <div id="prediction50" class="prediction-items"></div>
+                </div>
+            </div>
+
+            <div class="input-section">
+                <h3>أدخل الضربة التي جاءت في اللعبة:</h3>
+                <div class="input-buttons-single">
+                    <button class="input-btn" data-value="🍅">🍅</button>
+                    <button class="input-btn" data-value="🫑">🫑</button>
+                    <button class="input-btn" data-value="🥕">🥕</button>
+                    <button class="input-btn" data-value="🌽">🌽</button>
+                    <button class="input-btn" data-value="🐮">🐮</button>
+                    <button class="input-btn" data-value="🐟">🐟</button>
+                    <button class="input-btn" data-value="🍤">🍤</button>
+                    <button class="input-btn" data-value="🐤">🐤</button>
+                </div>
+            </div>
+
+            <div class="missed-hits">
+                <h3>الضربات الفائتة:</h3>
+                <div id="missedHits" class="missed-display"></div>
+            </div>
+
+            <button id="nextRoundBtn" class="next-btn" disabled>➡️ الجولة التالية</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
