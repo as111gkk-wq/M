@@ -1,4 +1,4 @@
-class PredictionGame {
+class BalancedPredictionGame {
     constructor() {
         this.lastSixHits = [];
         this.currentRoundHits = [];
@@ -7,34 +7,52 @@ class PredictionGame {
         this.meats = ['🐮', '🐟', '🍤', '🐤'];
         this.allItems = [...this.vegetables, ...this.meats];
         this.currentInput = null;
-        this.choiceCounts = {};
         
         this.initializeEventListeners();
-        this.initializeChoiceCounts();
-    }
-
-    initializeChoiceCounts() {
-        this.allItems.forEach(item => {
-            this.choiceCounts[item] = 0;
-        });
     }
 
     initializeEventListeners() {
-        // شاشة الإدخال
-        document.querySelectorAll('.choice-item').forEach(item => {
-            item.addEventListener('click', (e) => this.handleChoiceSelection(e));
-        });
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.setupEventListeners());
+        } else {
+            this.setupEventListeners();
+        }
+    }
 
-        document.getElementById('confirmBtn').addEventListener('click', () => this.startGame());
+    setupEventListeners() {
+        try {
+            document.querySelectorAll('.choice-item').forEach(item => {
+                item.addEventListener('click', (e) => this.handleChoiceSelection(e));
+            });
 
-        // شاشة التخمين
-        document.querySelectorAll('.input-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => this.handleGameInput(e));
-        });
+            const confirmBtn = document.getElementById('confirmBtn');
+            if (confirmBtn) {
+                confirmBtn.addEventListener('click', () => this.startGame());
+            }
 
-        document.getElementById('nextRoundBtn').addEventListener('click', () => this.nextRound());
-        document.getElementById('backBtn').addEventListener('click', () => this.resetGame());
-        document.querySelector('.back-btn-top').addEventListener('click', () => this.resetGame());
+            document.querySelectorAll('.input-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => this.handleGameInput(e));
+            });
+
+            const nextRoundBtn = document.getElementById('nextRoundBtn');
+            if (nextRoundBtn) {
+                nextRoundBtn.addEventListener('click', () => this.nextRound());
+            }
+
+            const backBtn = document.getElementById('backBtn');
+            if (backBtn) {
+                backBtn.addEventListener('click', () => this.resetGame());
+            }
+
+            const backTop = document.querySelector('.back-btn-top');
+            if (backTop) {
+                backTop.addEventListener('click', () => this.resetGame());
+            }
+
+            console.log('✅ تم تحميل اللعبة بنجاح');
+        } catch (error) {
+            console.error('❌ خطأ في تحميل اللعبة:', error);
+        }
     }
 
     handleChoiceSelection(event) {
@@ -43,53 +61,26 @@ class PredictionGame {
         const selectedItem = event.currentTarget;
         const value = selectedItem.dataset.value;
 
-        // إضافة العنصر
         this.lastSixHits.push(value);
-        this.choiceCounts[value]++;
-        
         this.updateSelectedList();
-        this.updateChoiceCounts();
 
-        if (this.lastSixHits.length === 6) {
-            document.getElementById('confirmBtn').disabled = false;
-        }
-    }
-
-    updateChoiceCounts() {
-        this.allItems.forEach(item => {
-            const choiceElement = document.querySelector(`.choice-item[data-value="${item}"]`);
-            const countElement = choiceElement.querySelector('.choice-count') || this.createCountElement(choiceElement);
-            countElement.textContent = this.choiceCounts[item];
-            
-            if (this.choiceCounts[item] > 0) {
-                choiceElement.classList.add('selected');
-            } else {
-                choiceElement.classList.remove('selected');
-            }
-        });
-    }
-
-    createCountElement(choiceElement) {
-        const countElement = document.createElement('span');
-        countElement.className = 'choice-count';
-        choiceElement.appendChild(countElement);
-        return countElement;
+        const confirmBtn = document.getElementById('confirmBtn');
+        if (confirmBtn) confirmBtn.disabled = !(this.lastSixHits.length === 6);
     }
 
     updateSelectedList() {
         const selectedList = document.getElementById('selectedList');
         const selectedCount = document.getElementById('selectedCount');
-        
-        selectedList.innerHTML = '';
-        selectedCount.textContent = this.lastSixHits.length;
-        
+
+        if (selectedList) selectedList.innerHTML = '';
+        if (selectedCount) selectedCount.textContent = this.lastSixHits.length;
+
         this.lastSixHits.forEach((hit, index) => {
             const span = document.createElement('span');
             span.className = 'selected-hit';
             span.textContent = hit;
             span.title = `ضربة ${index + 1}`;
-            
-            // زر الإزالة
+
             const removeBtn = document.createElement('button');
             removeBtn.className = 'remove-btn';
             removeBtn.textContent = '×';
@@ -97,34 +88,38 @@ class PredictionGame {
                 e.stopPropagation();
                 this.removeSelectedHit(index);
             });
-            
+
             span.appendChild(removeBtn);
-            selectedList.appendChild(span);
+            if (selectedList) selectedList.appendChild(span);
         });
     }
 
     removeSelectedHit(index) {
-        const removedValue = this.lastSixHits[index];
         this.lastSixHits.splice(index, 1);
-        this.choiceCounts[removedValue]--;
-        
         this.updateSelectedList();
-        this.updateChoiceCounts();
-        document.getElementById('confirmBtn').disabled = this.lastSixHits.length !== 6;
+        
+        const confirmBtn = document.getElementById('confirmBtn');
+        if (confirmBtn) confirmBtn.disabled = this.lastSixHits.length !== 6;
     }
 
     startGame() {
-        if (this.lastSixHits.length !== 6) return;
+        if (this.lastSixHits.length !== 6) {
+            alert('⚠️ يجب اختيار 6 ضربات أولاً');
+            return;
+        }
 
         this.currentRoundHits = [...this.lastSixHits];
         this.showGuessScreen();
-        this.generatePredictions();
+        this.generateBalancedPredictions();
         this.updateDisplays();
     }
 
     showGuessScreen() {
-        document.getElementById('inputScreen').classList.remove('active');
-        document.getElementById('guessScreen').classList.add('active');
+        const inputScreen = document.getElementById('inputScreen');
+        const guessScreen = document.getElementById('guessScreen');
+        
+        if (inputScreen) inputScreen.classList.remove('active');
+        if (guessScreen) guessScreen.classList.add('active');
     }
 
     updateDisplays() {
@@ -134,26 +129,24 @@ class PredictionGame {
 
     updateCurrentRoundDisplay() {
         const display = document.getElementById('currentRoundHits');
+        if (!display) return;
+        
         display.innerHTML = '';
-        
-        // عرض آخر 10 ضربات فقط (أحدث 10)
-        const displayHits = this.currentRoundHits.slice(-10);
-        
-        displayHits.forEach((hit, index) => {
+        this.currentRoundHits.forEach((hit, index) => {
             const div = document.createElement('div');
             div.className = 'round-hit';
             div.textContent = hit;
-            const globalIndex = this.currentRoundHits.length - displayHits.length + index + 1;
-            div.title = `ضربة ${globalIndex}`;
+            div.title = `ضربة ${index + 1}`;
             display.appendChild(div);
         });
     }
 
     updateMissedHitsDisplay() {
         const display = document.getElementById('missedHits');
-        display.innerHTML = '';
+        if (!display) return;
         
-        this.missedHits.forEach((hit, index) => {
+        display.innerHTML = '';
+        this.missedHits.forEach((hit) => {
             const div = document.createElement('div');
             div.className = 'missed-item';
             div.textContent = hit;
@@ -162,7 +155,6 @@ class PredictionGame {
     }
 
     handleGameInput(event) {
-        // إزالة التحديد السابق
         document.querySelectorAll('.input-btn').forEach(btn => {
             btn.classList.remove('selected');
         });
@@ -170,107 +162,251 @@ class PredictionGame {
         const inputValue = event.currentTarget.dataset.value;
         this.currentInput = inputValue;
         event.currentTarget.classList.add('selected');
-        
-        // تفعيل زر الجولة التالية
-        document.getElementById('nextRoundBtn').disabled = false;
+
+        const nextRoundBtn = document.getElementById('nextRoundBtn');
+        if (nextRoundBtn) nextRoundBtn.disabled = false;
     }
 
     nextRound() {
         if (!this.currentInput) {
-            alert('يجب إدخال الضربة التي جاءت في اللعبة أولاً');
+            alert('⚠️ يجب إدخال الضربة التي جاءت في اللعبة أولاً');
             return;
         }
 
-        // إضافة الضربة الجديدة
         this.currentRoundHits.push(this.currentInput);
-        
-        // الحفاظ على آخر 10 ضربات فقط (إزالة الأقدم إذا تجاوزنا 10)
-        if (this.currentRoundHits.length > 10) {
-            this.currentRoundHits = this.currentRoundHits.slice(-10);
-        }
-        
-        // تحديث آخر 6 ضربات (آخر 6 من الجولة الحالية)
         this.lastSixHits = this.currentRoundHits.slice(-6);
 
-        // إعادة تعيين الإدخال الحالي
+        this.checkMissedPredictions();
+
         this.currentInput = null;
         document.querySelectorAll('.input-btn').forEach(btn => {
             btn.classList.remove('selected');
         });
-        document.getElementById('nextRoundBtn').disabled = true;
+        
+        const nextRoundBtn = document.getElementById('nextRoundBtn');
+        if (nextRoundBtn) nextRoundBtn.disabled = true;
 
-        // تحديث العروض وتوليد توقعات جديدة
         this.updateDisplays();
-        this.generatePredictions();
+        this.generateBalancedPredictions();
     }
 
-    generatePredictions() {
+    // ⚖️ خوارزمية متوازنة بـ 3 خضار و 3 لحوم
+    generateBalancedPredictions() {
         const prediction100 = document.getElementById('prediction100');
         const prediction50 = document.getElementById('prediction50');
-        
-        prediction100.innerHTML = '';
-        prediction50.innerHTML = '';
 
-        // تحليل آخر 6 ضربات
-        const hitCount = this.analyzeHits();
-        
-        // توقع 100% (الأكثر تكراراً من الخضار)
-        const topVegetables = this.getTopItems(hitCount, this.vegetables, 2);
-        topVegetables.forEach(item => {
-            this.createPredictionItem(item, '100%', prediction100, true);
+        if (prediction100) prediction100.innerHTML = '';
+        if (prediction50) prediction50.innerHTML = '';
+
+        const predictions = this.calculateBalancedPredictions();
+
+        // تقسيم 3 خضار و 3 لحوم بالتساوي
+        const vegetables = predictions.filter(item => this.vegetables.includes(item));
+        const meats = predictions.filter(item => this.meats.includes(item));
+
+        // عرض 3 خضار في التوقعات العالية
+        vegetables.slice(0, 3).forEach((item, index) => {
+            const confidence = 85 - (index * 8);
+            this.createPredictionItem(item, 'عالية', prediction100, true, confidence, '🥦');
         });
 
-        // توقع 50% (عناصر عشوائية مع مراعاة النظام)
-        const randomPredictions = this.getRandomPredictions(hitCount, 2);
-        randomPredictions.forEach(item => {
-            this.createPredictionItem(item, '50%', prediction50, false);
+        // عرض 3 لحوم في التوقعات المتوسطة
+        meats.slice(0, 3).forEach((item, index) => {
+            const confidence = 75 - (index * 8);
+            this.createPredictionItem(item, 'متوسطة', prediction50, false, confidence, '🍖');
         });
     }
 
-    analyzeHits() {
-        const hitCount = {};
+    calculateBalancedPredictions() {
+        if (this.currentRoundHits.length === 0) {
+            return this.getPerfectlyBalancedItems();
+        }
+
+        const scores = {};
+        this.allItems.forEach(item => scores[item] = 0);
+
+        // 1. تحليل التوازن الحالي
+        this.analyzeCurrentBalance(scores);
+
+        // 2. تحليل التسلسل الأخير
+        this.analyzeRecentPatterns(scores);
+
+        // 3. استراتيجيات ذكية للتوازن
+        this.applyBalancingStrategies(scores);
+
+        // 4. تعزيز العناصر النادرة
+        this.boostRareItems(scores);
+
+        // فصل الخضار واللحوم وترتيبهم بشكل منفصل
+        const vegetableScores = Object.entries(scores)
+            .filter(([item]) => this.vegetables.includes(item))
+            .sort(([,a], [,b]) => b - a)
+            .map(([item]) => item)
+            .slice(0, 3);
+
+        const meatScores = Object.entries(scores)
+            .filter(([item]) => this.meats.includes(item))
+            .sort(([,a], [,b]) => b - a)
+            .map(([item]) => item)
+            .slice(0, 3);
+
+        // دمج النتائج مع الحفاظ على التوازن
+        return [...vegetableScores, ...meatScores];
+    }
+
+    analyzeCurrentBalance(scores) {
+        const lastSix = this.lastSixHits;
+        const vegCount = lastSix.filter(item => this.vegetables.includes(item)).length;
+        const meatCount = lastSix.filter(item => this.meats.includes(item)).length;
+
+        console.log(`📊 الإحصاء الحالي: ${vegCount} خضار, ${meatCount} لحوم`);
+
+        // هدفنا: 3 خضار و 3 لحوم
+        const targetBalance = 3;
+
+        // تصحيح عدم التوازن
+        if (vegCount > targetBalance) {
+            // زيادة في الخضار، نعزز اللحوم
+            this.meats.forEach(meat => {
+                scores[meat] += (vegCount - targetBalance) * 4;
+            });
+        } else if (meatCount > targetBalance) {
+            // زيادة في اللحوم، نعزز الخضار
+            this.vegetables.forEach(veg => {
+                scores[veg] += (meatCount - targetBalance) * 4;
+            });
+        }
+
+        // إذا كان التوازن جيداً، نعزز النوع الآخر عن الأخير
+        const lastHit = lastSix[lastSix.length - 1];
+        if (lastHit) {
+            if (this.vegetables.includes(lastHit)) {
+                this.meats.forEach(meat => scores[meat] += 3);
+            } else {
+                this.vegetables.forEach(veg => scores[veg] += 3);
+            }
+        }
+    }
+
+    analyzeRecentPatterns(scores) {
+        const lastThree = this.lastSixHits.slice(-3);
+        const vegInLastThree = lastThree.filter(item => this.vegetables.includes(item)).length;
+        const meatInLastThree = lastThree.filter(item => this.meats.includes(item)).length;
+
+        // إذا كان هناك تكرار لنفس النوع، نعزز النوع المعاكس
+        if (vegInLastThree >= 2) {
+            console.log('🔄 تكرار خضار → نعزز اللحوم');
+            this.meats.forEach(meat => {
+                scores[meat] += vegInLastThree * 3;
+            });
+        }
+
+        if (meatInLastThree >= 2) {
+            console.log('🔄 تكرار لحوم → نعزز الخضار');
+            this.vegetables.forEach(veg => {
+                scores[veg] += meatInLastThree * 3;
+            });
+        }
+
+        // تحليل التسلسل المباشر
+        lastThree.forEach((hit, index) => {
+            const weight = (3 - index) * 2;
+            scores[hit] += weight;
+        });
+    }
+
+    applyBalancingStrategies(scores) {
+        const lastHit = this.lastSixHits[this.lastSixHits.length - 1];
+        const secondLastHit = this.lastSixHits[this.lastSixHits.length - 2];
+
+        // استراتيجية التناوب الذكي
+        if (lastHit && secondLastHit) {
+            const lastIsVeg = this.vegetables.includes(lastHit);
+            const secondLastIsVeg = this.vegetables.includes(secondLastHit);
+
+            if (lastIsVeg === secondLastIsVeg) {
+                // تكرار نفس النوع، نعزز النوع المعاكس
+                if (lastIsVeg) {
+                    this.meats.forEach(meat => scores[meat] += 4);
+                } else {
+                    this.vegetables.forEach(veg => scores[veg] += 4);
+                }
+            } else {
+                // تناوب، نستمر في التناوب ولكن بنفس النوع
+                if (lastIsVeg) {
+                    this.vegetables.forEach(veg => {
+                        if (veg !== lastHit) scores[veg] += 2;
+                    });
+                } else {
+                    this.meats.forEach(meat => {
+                        if (meat !== lastHit) scores[meat] += 2;
+                    });
+                }
+            }
+        }
+
+        // منع التكرار المباشر لنفس العنصر
+        if (lastHit) {
+            scores[lastHit] -= 3;
+        }
+    }
+
+    boostRareItems(scores) {
+        const lastTen = this.currentRoundHits.slice(-10);
+        
+        // تعزيز العناصر النادرة مع الحفاظ على التوازن
         this.allItems.forEach(item => {
-            hitCount[item] = this.lastSixHits.filter(hit => hit === item).length;
+            const recentAppearances = lastTen.filter(hit => hit === item).length;
+            if (recentAppearances === 0) {
+                scores[item] += 4; // عنصر لم يظهر أبداً
+            } else if (recentAppearances === 1) {
+                scores[item] += 2; // عنصر نادر
+            }
         });
-        return hitCount;
-    }
 
-    getTopItems(hitCount, items, count) {
-        const filtered = items.filter(item => hitCount[item] > 0);
-        if (filtered.length === 0) {
-            return items.slice(0, count);
+        // تعزيز إضافي للحفاظ على تنوع الخضار واللحوم
+        const recentVeg = lastTen.filter(item => this.vegetables.includes(item));
+        const recentMeat = lastTen.filter(item => this.meats.includes(item));
+        
+        // إذا كان نوع معين نادراً، نعززه
+        if (recentVeg.length < 3) {
+            this.vegetables.forEach(veg => {
+                const vegAppearances = recentVeg.filter(hit => hit === veg).length;
+                if (vegAppearances === 0) {
+                    scores[veg] += 3;
+                }
+            });
         }
-        return filtered
-            .sort((a, b) => hitCount[b] - hitCount[a])
-            .slice(0, count);
-    }
 
-    getRandomPredictions(hitCount, count) {
-        const availableItems = this.allItems.filter(item => 
-            !this.lastSixHits.slice(-2).includes(item)
-        );
-        
-        const shuffled = [...availableItems].sort(() => Math.random() - 0.5);
-        return shuffled.slice(0, count);
-    }
-
-    createPredictionItem(item, percentage, container, isHighProbability) {
-        const div = document.createElement('div');
-        div.className = `prediction-item ${isHighProbability ? 'prediction-100' : 'prediction-50'}`;
-        div.textContent = item;
-        div.title = `توقع ${percentage} - ${this.getItemName(item)}`;
-        
-        div.addEventListener('click', () => this.handlePredictionClick(item, percentage));
-        container.appendChild(div);
-    }
-
-    handlePredictionClick(item, percentage) {
-        alert(`توقعت: ${item} (${percentage}) - ${this.getItemName(item)}`);
-        
-        // إضافة الضربة الفائتة إذا كانت خاطئة
-        if (this.currentInput && this.currentInput !== item) {
-            this.addMissedHit(item);
+        if (recentMeat.length < 3) {
+            this.meats.forEach(meat => {
+                const meatAppearances = recentMeat.filter(hit => hit === meat).length;
+                if (meatAppearances === 0) {
+                    scores[meat] += 3;
+                }
+            });
         }
+    }
+
+    getPerfectlyBalancedItems() {
+        // إرجاع 3 خضار و 3 لحوم بشكل متوازن
+        const shuffledVeg = [...this.vegetables].sort(() => 0.5 - Math.random());
+        const shuffledMeat = [...this.meats].sort(() => 0.5 - Math.random());
+        
+        const threeVeg = shuffledVeg.slice(0, 3);
+        const threeMeat = shuffledMeat.slice(0, 3);
+        
+        return [...threeVeg, ...threeMeat].sort(() => 0.5 - Math.random());
+    }
+
+    checkMissedPredictions() {
+        const predictionItems = document.querySelectorAll('.prediction-item');
+        predictionItems.forEach(item => {
+            const emoji = item.querySelector('.pred-emoji').textContent;
+            if (emoji !== this.currentInput) {
+                this.addMissedHit(emoji);
+            }
+        });
     }
 
     addMissedHit(item) {
@@ -278,6 +414,34 @@ class PredictionGame {
             this.missedHits.push(item);
             this.updateMissedHitsDisplay();
         }
+    }
+
+    createPredictionItem(item, label, container, isHighProbability, confidence = 50, typeEmoji = '') {
+        if (!container) return;
+        
+        const div = document.createElement('div');
+        div.className = `prediction-item ${isHighProbability ? 'prediction-100' : 'prediction-50'}`;
+        
+        const type = this.vegetables.includes(item) ? 'خضار' : 'لحوم';
+        const emoji = this.vegetables.includes(item) ? '🥦' : '🍖';
+
+        div.innerHTML = `
+            <div class="pred-row">
+                <span class="pred-emoji">${item}</span>
+                <span class="pred-type">${emoji}</span>
+                <span class="pred-label">${label}</span>
+                <span class="pred-conf">${confidence}%</span>
+            </div>
+            <div class="confidence-bar" style="width: ${confidence}%"></div>
+        `;
+
+        div.title = `${this.getItemName(item)} - ${type} - ثقة ${confidence}%`;
+        div.addEventListener('click', () => this.handlePredictionClick(item, label, type));
+        container.appendChild(div);
+    }
+
+    handlePredictionClick(item, percentage, type) {
+        alert(`🎯 توقع: ${item} ${this.getItemName(item)} (${type}) - ${percentage} ثقة`);
     }
 
     getItemName(emoji) {
@@ -293,30 +457,33 @@ class PredictionGame {
         this.currentRoundHits = [];
         this.missedHits = [];
         this.currentInput = null;
-        this.initializeChoiceCounts();
+
+        const confirmBtn = document.getElementById('confirmBtn');
+        if (confirmBtn) confirmBtn.disabled = true;
         
-        // إعادة تعيين الواجهة
-        document.querySelectorAll('.choice-item').forEach(item => {
-            item.classList.remove('selected');
-            const countElement = item.querySelector('.choice-count');
-            if (countElement) countElement.remove();
-        });
-        
-        document.getElementById('confirmBtn').disabled = true;
-        document.getElementById('nextRoundBtn').disabled = true;
-        
+        const nextRoundBtn = document.getElementById('nextRoundBtn');
+        if (nextRoundBtn) nextRoundBtn.disabled = true;
+
         document.querySelectorAll('.input-btn').forEach(btn => {
             btn.classList.remove('selected');
         });
+
+        const guessScreen = document.getElementById('guessScreen');
+        const inputScreen = document.getElementById('inputScreen');
         
-        document.getElementById('guessScreen').classList.remove('active');
-        document.getElementById('inputScreen').classList.add('active');
-        
+        if (guessScreen) guessScreen.classList.remove('active');
+        if (inputScreen) inputScreen.classList.add('active');
+
         this.updateSelectedList();
+        this.updateDisplays();
     }
 }
 
 // بدء اللعبة عند تحميل الصفحة
 document.addEventListener('DOMContentLoaded', () => {
-    new PredictionGame();
+    new BalancedPredictionGame();
 });
+
+if (document.readyState === 'complete') {
+    new BalancedPredictionGame();
+}
